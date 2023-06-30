@@ -1,0 +1,4 @@
+POST http://localhost:7071/api/prompt
+content-type: application/json
+
+{ "prompt": "How do I clean the espresso machine?" }
