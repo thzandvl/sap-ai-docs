@@ -132,8 +132,4 @@ local.settings.json
 __blobstorage__
 __queuestorage__
 __azurite_db*__.json
-<<<<<<< HEAD
 .python_packages
-=======
-.python_packages
->>>>>>> cf2f870dba1765e75b2f9e055ff27e9511bc77fd
