@@ -1,28 +1,30 @@
 # OpenAI with SAP
 
 ## Use cases
+
 * [Use case #1: Text to SQL](https://github.com/thzandvl/sap-ai-sql)
 * Use case #2: Use your own data with Azure OpenAI service
 
 ## Use case #2: Use your own data with Azure OpenAI service
+
 This is a simplified version of the the example code provided by Microsoft that can be found [here](https://github.com/microsoft/sample-app-aoai-chatGPT). As the Python OpenAI library does not yet provide a method to use your own data, I used the REST API just like in the example code. You will get a JSON response with the brief answer and the citations from the Azure OpenAI service which you can use for your own purposes.
 
-
 ### Prerequisites
+
 * `OpenAI deployment`: An OpenAI deployment on Azure is required. For more information on how to create an OpenAI deployment please visit the [documentation](https://learn.microsoft.com/en-us/azure/cognitive-services/openai/how-to/create-resource?pivots=web-portal). For this test I used the GPT-3.5 Turbo model as the GPT-4 model is still in private preview.
 * `Search index`: Create a search index in Azure Cognitive Search. You can use the Azure AI Studio to create a search index based on document files in Azure blob storage, I provided my sample documents in the [data](https://github.com/thzandvl/sap-ai-docs/tree/main/data) folder. The search index should contain the following fields:
-    * `content`: The content of the document
-    * `filename`: The name of the document
-    * `title`: The title of the document
-    * `url`: The url of the document
+  * `content`: The content of the document
+  * `filename`: The name of the document
+  * `title`: The title of the document
+  * `url`: The url of the document
 * `Azure Functions`: For the code I will use the Python programming model v2. For more information on Azure Functions please visit the [documentation](https://learn.microsoft.com/en-us/azure/azure-functions/create-first-function-vs-code-python?pivots=python-mode-decorators).
 
-
 ## The code
+
 The code exists of three functions, one to prepare the body and headers for the REST call, one to call the OpenAI endpoint and extract the data and one for the HTTP trigger. The HTTP trigger function is the main function that will be called from the client. The HTTP trigger function will call the function that retrieves data from the Azure OpenAI service endpoint and uses the prepare function to generate the body and headers. The HTTP trigger function will return the answer to the client.
 
-
 ### The prompt
+
 This is mainly the default function generated while creating the Azure Function. The only thing I changed is the route and the name of the function.
 
 ```python
@@ -50,7 +52,9 @@ def ProcessPrompt(req: func.HttpRequest) -> func.HttpResponse:
 ```
 
 ### Setting the environment variables
+
 There is quiet a list of environment variables that are required to define the search index and Azure OpenAI service. For the search index you need the following:
+
 ```json
     "AZURE_SEARCH_SERVICE": "<name of the Azure Cognitive Search service>",
     "AZURE_SEARCH_KEY": "<Azure Cognitive Search service API key>",
@@ -65,8 +69,8 @@ There is quiet a list of environment variables that are required to define the s
     "AZURE_SEARCH_URL_COLUMN": "<column name for the file url>"
 ```
 
-
 And for the Azure OpenAI service you need the following:
+
 ```json
     "AZURE_OPENAI_PREVIEW_API_VERSION": "2023-06-01-preview",
     "AZURE_OPENAI_RESOURCE": "<Azure OpenAI service name>",
@@ -78,8 +82,8 @@ And for the Azure OpenAI service you need the following:
 
 Make sure to set the OS environment variables in `local.settings.json` for local testing and in the Azure Function App settings for the deployment.
 
-
 ### Preparing the body and headers
+
 This function prepares the body and headers for the REST call to the Azure OpenAI service. The body contains the prompt, the system message and the datasource information that refers to the search index. The headers contain the API key and the content type.
 
 ```python
@@ -140,6 +144,7 @@ def prepare_body_headers_with_data(prompt):
 ```
 
 ### Calling the Azure OpenAI service
+
 This function calls the Azure OpenAI service and returns the answer to the HTTP trigger function. The function uses the prepare function to generate the body and headers for the REST call.
 
 ```python
@@ -171,8 +176,8 @@ def conversation_with_data(prompt):
 
 Based on the role of the message the function extracts the citations and the answer from the response. Both values are returned as a JSON object to the HTTP trigger function.
 
-
 ### Testing the code
+
 In my local deployment I used the following REST query:
 
 ```http
@@ -247,6 +252,6 @@ The result from OpenAI is:
 }
 ```
 
-
 ### Next steps
+
 A good next step would be to create a Power Virtual Agents bot that uses this Azure Function to answer questions about your own data. You can integrate this PVA bot into your Microsoft Teams environment and make it available to your colleagues.
